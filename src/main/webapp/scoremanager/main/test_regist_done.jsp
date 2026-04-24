@@ -1,4 +1,4 @@
-<%-- 科目削除完了画面 --%>
+<%-- 成績登録/変更完了JSP --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
@@ -12,9 +12,10 @@
 	
 	<c:param name="content">
 		<section class="me-4">
-			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">科目情報削除</h2>
-			<p style="background-color:#10C000">削除が完了しました</p>
-			<a href="SubjectList.action">科目一覧</a>
+			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績管理</h2>
+			<p style="height: 30px; text-align: center; background-color: #3cb371;">変更が完了しました</p>
+			<a href="TestRegist.action">戻る</a>
+			<a href="TestList.action">成績参照</a>
 		</section>
 	</c:param>
 </c:import>

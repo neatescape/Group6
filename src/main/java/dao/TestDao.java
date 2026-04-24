@@ -14,8 +14,8 @@ import bean.Test;
 
 public class TestDao extends Dao {
 	
-	private String baseSql = "select * from test where school_cd=?";
-	// 1件取得
+	//private String baseSql = ""
+	
 	public Test get(Student student, Subject subject, School school, int no) throws Exception {
 		Test test = new Test();
 		
@@ -24,8 +24,8 @@ public class TestDao extends Dao {
 		PreparedStatement statement = null;
 		
 		try {
-			statement = connection.prepareStatement("select * from test where "
-					+ "student_no=? and subject_cd=? and school_cd=? and no=?");
+			statement = connection.prepareStatement("select * from test where"
+					+ " student_no=? and subject_cd=? and school_cd=? and no=?");
 			statement.setString(1, student.getNo());
 			statement.setString(2, subject.getCd());
 			statement.setString(3, school.getCd());
@@ -37,7 +37,7 @@ public class TestDao extends Dao {
 			SubjectDao subjectDao = new SubjectDao();
 			SchoolDao schoolDao = new SchoolDao();
 			
-			if (rSet.next()) {				
+			if (rSet.next()) {
 				test.setStudent(studentDao.get(rSet.getString("student_no")));
 				test.setSubject(subjectDao.get(rSet.getString("subject_cd"), schoolDao.get(rSet.getString("school_cd"))));
 				test.setSchool(schoolDao.get(rSet.getString("school_cd")));
@@ -73,17 +73,16 @@ public class TestDao extends Dao {
 	private List<Test> postFilter(ResultSet rSet, School school) {
 		List<Test> list = new ArrayList<>();
 		
-		StudentDao studentDao = new StudentDao();
-		SubjectDao subjectDao = new SubjectDao();
-		SchoolDao schoolDao = new SchoolDao();
-		
 		try {
+			StudentDao studentDao = new StudentDao();
+			SubjectDao subjectDao = new SubjectDao();
+			
 			while(rSet.next()) {
 				Test test = new Test();
-					
+				
 				test.setStudent(studentDao.get(rSet.getString("student_no")));
-				test.setSubject(subjectDao.get(rSet.getString("subject_cd"), schoolDao.get(rSet.getString("school_cd"))));
-				test.setSchool(schoolDao.get(rSet.getString("school_cd")));
+				test.setSubject(subjectDao.get(rSet.getString("subject_cd"), school));
+				test.setSchool(school);
 				test.setNo(rSet.getInt("no"));
 				test.setPoint(rSet.getInt("point"));
 				test.setClassNum(rSet.getString("class_num"));
@@ -91,7 +90,7 @@ public class TestDao extends Dao {
 				list.add(test);
 			}
 			
-		} catch (SQLException | NullPointerException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
@@ -107,15 +106,18 @@ public class TestDao extends Dao {
 		
 		ResultSet rSet = null;
 		
-		String condition = "and ent_year=? and class_num=? and no=?";
-		String order = " order by student_no asc";
-		
 		try {
-			statement = connection.prepareStatement(baseSql + condition + order);
-			statement.setString(1, school.getCd());
-			statement.setInt(2, entYear);
-			statement.setString(3, classNum);
+			statement = connection.prepareStatement(
+					"select student_no, subject_cd, test.school_cd, test.no, point, test.class_num"
+					+ " from test join student on test.student_no = student.no and test.class_num = student.class_num"
+					+ " where ent_year=? and test.class_num=? and subject_cd=? and test.no=? and test.school_cd=?"
+					+ " order by student_no asc");
+			statement.setInt(1, entYear);
+			statement.setString(2, classNum);
+			statement.setString(3, subject.getCd());
 			statement.setInt(4, no);
+			statement.setString(5, school.getCd());
+			
 			rSet = statement.executeQuery();
 			
 			list = postFilter(rSet, school);
@@ -141,14 +143,67 @@ public class TestDao extends Dao {
 		
 		return list;
 	}
+	
+	public boolean save(List<Test> list) throws Exception {
+		Connection connection = getConnection();
+		
+		PreparedStatement statement = null;
+		
+		int count = 0;
+		
+		try {
+			for (Test test : list) {
+				Test old = get(test.getStudent(), test.getSubject(), test.getSchool(), test.getNo());
+				if (old == null) {
+					statement = connection.prepareStatement(
+							"insert into test(student_no, subject_cd, school_cd, no, point, class_num) values(?, ?, ?, ?, ?, ?)");
+					statement.setString(1, test.getStudent().getNo());
+					statement.setString(2, test.getSubject().getCd());
+					statement.setString(3, test.getSchool().getCd());
+					statement.setInt(4, test.getNo());
+					statement.setInt(5, test.getPoint());
+					statement.setString(6, test.getClassNum());
+				} else {
+					statement = connection.prepareStatement(
+							"update test set point=? where student_no=? and subject_cd=? and school_cd=? and no=? and class_num=?");
+					statement.setInt(1, test.getPoint());
+					statement.setString(2, test.getStudent().getNo());
+					statement.setString(3, test.getSubject().getCd());
+					statement.setString(4, test.getSchool().getCd());
+					statement.setInt(5, test.getNo());
+					statement.setString(6, test.getClassNum());
+				}
+				count = statement.executeUpdate();
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (statement != null) {
+				try {
+					statement.close();
+				} catch (SQLException sqle) {
+					throw sqle;
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException sqle) {
+					throw sqle;
+				}
+			}
+		}
+		
+		if (count > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+//	private boolean save(Test test, Connection connection) {
+//		
+//		
+//		return true;
+//	}
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	

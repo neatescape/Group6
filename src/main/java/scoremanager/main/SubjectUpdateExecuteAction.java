@@ -14,7 +14,8 @@ import tool.Action;
 public class SubjectUpdateExecuteAction extends Action {
 
 	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
-
+		HttpSession session = req.getSession();
+		
 		SubjectDao subDao = new SubjectDao();
 		String error = null; // エラーメッセージ
 		
@@ -23,7 +24,6 @@ public class SubjectUpdateExecuteAction extends Action {
 		String name = req.getParameter("name");
 		
 		// ログイン中教師の学校を取得
-		HttpSession session = req.getSession();
 		Teacher teacher = (Teacher)session.getAttribute("user");
 		if (teacher == null) {
 			teacher = new Teacher();
@@ -53,7 +53,7 @@ public class SubjectUpdateExecuteAction extends Action {
 		
 		// 科目コードが別の画面で削除されている場合
 		if (existsCd == false) {
-			error = "科目コードが存在していません";
+			error = "科目が存在していません";
 			req.setAttribute("error", error);
 			req.getRequestDispatcher("SubjectUpdate.action").forward(req, res);
 			return;
@@ -72,7 +72,7 @@ public class SubjectUpdateExecuteAction extends Action {
 		if (result) {
 			req.getRequestDispatcher("subject_update_done.jsp").forward(req, res);
 		} else {
-			error = "エラーが発生しました";
+			error = "変更に失敗しました";
 			req.setAttribute("error", error);
 			req.getRequestDispatcher("subjectUpdate.action").forward(req, res);
 		}

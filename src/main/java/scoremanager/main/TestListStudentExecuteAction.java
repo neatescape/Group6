@@ -40,7 +40,7 @@ public class TestListStudentExecuteAction extends Action {
 				
 		// レスポンス値をセット
 		req.setAttribute("f4", stuNo);
-		req.setAttribute("students", tListStu);
+		req.setAttribute("test_list_student", tListStu);
 		
 		req.getRequestDispatcher("TestList.action").forward(req, res);
 	}
