@@ -9,7 +9,7 @@ public class TestListSubject implements Serializable {
 	private String studentNo;
 	private String studentName;
 	private String classNum;
-	private Map<Integer, Integer> points;
+	private Map<String, Integer> points;
 	
 	public int getEntYear() {
 		return entYear;
@@ -39,16 +39,17 @@ public class TestListSubject implements Serializable {
     	this.classNum = classNum;
     }
     
-    public Map<Integer, Integer> getPoints() {
+    public Map<String, Integer> getPoints() {
     	return points;
     }
-    public void setPoints(Map<Integer, Integer> points) {
+    public void setPoints(Map<String, Integer> points) {
     	this.points = points;
     }
-//    public String getPoint (int key) {
-//    	return this.points.get(key);
-//    }
-    public void putPoint(int key, int value) {
+    
+    public int getPoint (String key) {
+    	return this.points.get(key);
+    }
+    public void putPoint(String key, int value) {
         this.points.put(key, value);
     }
 }

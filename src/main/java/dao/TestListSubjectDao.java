@@ -28,8 +28,10 @@ public class TestListSubjectDao extends Dao {
 				testListSubject.setStudentNo(rSet.getString("student_no"));
 				testListSubject.setStudentName(rSet.getString("student_name"));
 				testListSubject.setClassNum(rSet.getString("class_num"));
-				Map<Integer, Integer> point = new HashMap<>();
-				point.put(rSet.getInt("no"), rSet.getInt("point"));
+				Map<String, Integer> point = new HashMap<>();
+				point.put(rSet.getString("no"), (Integer)rSet.getObject("point"));
+				rSet.next();
+				point.put(rSet.getString("no"), (Integer)rSet.getObject("point"));
 				testListSubject.setPoints(point);
 				
 				list.add(testListSubject);
