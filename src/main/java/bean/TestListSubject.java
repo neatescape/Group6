@@ -1,4 +1,3 @@
-// 山下
 package bean;
 
 import java.io.Serializable;
