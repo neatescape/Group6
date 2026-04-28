@@ -1,3 +1,4 @@
+// 杉本
 package scoremanager.main;
 
 import bean.School;
