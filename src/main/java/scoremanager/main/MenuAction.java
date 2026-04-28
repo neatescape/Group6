@@ -1,3 +1,4 @@
+// 各自
 package scoremanager.main;
 
 import jakarta.servlet.http.HttpServletRequest;
