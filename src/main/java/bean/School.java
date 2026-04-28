@@ -1,3 +1,4 @@
+// 各自
 package bean;
 
 import java.io.Serializable;
