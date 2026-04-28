@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import bean.School;
+import bean.Student;
 import bean.Subject;
 import bean.Teacher;
 import bean.Test;
 import dao.ClassNumDao;
+import dao.StudentDao;
 import dao.SubjectDao;
 import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,13 +65,6 @@ public class TestRegistAction extends Action {
 			subject = subDao.get(subCd, school);
 		}
 		
-		// 入学年度、クラス、科目、回数のいずれかが未入力の場合
-		if (entYear == 0 || (classNum != null && classNum.equals("0")) || (classNum != null && subCd.equals("0")) || no == 0) {
-			errors.put("f1", "入学年度とクラスと科目と回数を選択してください");
-			req.getRequestDispatcher("test_regist.jsp").forward(req, res);
-			return;
-		}
-		
 		// 10年前から1年後まで年をリストに追加
 		List<Integer> entYearSet = new ArrayList<>();
 		for (int i=year-10; i<year+1; i++) {
@@ -83,11 +78,6 @@ public class TestRegistAction extends Action {
 		noSet.add(1);
 		noSet.add(2);
 		
-		// DBからデータ取得
-		if (entYear != -1 && classNum != null && subCd != null && no != -1) {
-			tests = testDao.filter(entYear, classNum, subject, no, school);
-		}
-		
 		// レスポンス値をセット
 		// セレクトボックスのselectedを指定するための値
 		req.setAttribute("f1", entYear);
@@ -99,6 +89,55 @@ public class TestRegistAction extends Action {
 		req.setAttribute("class_num_set", cNumSet);
 		req.setAttribute("subject_set", subSet);
 		req.setAttribute("no_set", noSet);
+		
+		// 入学年度、クラス、科目、回数のいずれかが未入力の場合
+		if (entYear == 0 || (classNum != null && classNum.equals("0")) || (classNum != null && subCd.equals("0")) || no == 0) {
+			errors.put("f1", "入学年度とクラスと科目と回数を選択してください");
+			req.setAttribute("errors", errors);
+			req.getRequestDispatcher("test_regist.jsp").forward(req, res);
+			return;
+		}
+		
+		// DBからデータ取得
+		if (entYear != -1 && classNum != null && subCd != null && no != -1) {
+			tests = testDao.filter(entYear, classNum.trim(), subject, no, school);
+			
+			// 更新だけでなく追加する機能も作りましたがいらなかったらコメントアウト
+			// -------------------------------------------------
+			// 登録されていない学生も出力するためのもの
+			// 入学年度とクラスの条件が合う学生を取得する
+			StudentDao stuDao = new StudentDao();
+			List<Student> students = stuDao.filter(school, entYear, classNum, true);
+			
+			// 学生が重複しないように処理をする
+			// testsに入っていない学生を入れる
+			if (tests != null) {
+				List<Student> studentRemove = new ArrayList<>();
+				for (Test test : tests) {
+					for (Student student : students) {
+						if (test.getStudent().getNo() == student.getNo()) {
+							studentRemove.add(student);
+						}
+					}
+				}
+				students.removeAll(studentRemove);
+			}
+			
+			// testsにstudentを入れる
+			if (students != null) {
+				for (Student student : students) {
+					Test test = new Test();
+					test.setStudent(student);
+					test.setClassNum(classNum);
+					test.setSubject(subject);
+					test.setSchool(school);
+					test.setNo(no);
+					tests.add(test);
+				}
+			}
+			// ---------------------------------------
+		}
+		
 		// 検索結果
 		req.setAttribute("tests", tests);
 		
