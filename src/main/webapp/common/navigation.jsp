@@ -1,12 +1,13 @@
+<%-- murakami --%>
 <%-- サイドバー --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<div style="width:100px; height:300px; text-align:center;">
+<div style="width:100px; height:300px; text-align:left;">
 
 	<c:if test="${user.isAuthenticated()}">
 		<nav>
-			<ul>
+			<ul style="list-style: none;">
 				<li><a href="Menu.action">メニュー</a></li>
 				<li><a href="StudentList.action">学生管理</a></li>
 				<li>成績管理</li>
