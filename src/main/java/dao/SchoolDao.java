@@ -1,4 +1,4 @@
-// 杉本
+// 山下
 package dao;
 
 import java.sql.Connection;
