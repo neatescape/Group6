@@ -49,10 +49,19 @@ public class TestRegistExecuteAction extends Action {
 			String key = "point_" + stuNo;
 	        String point = req.getParameter(key);
 	        if (point != null) {
+	        	// エラー文表示
+	        	if (Integer.parseInt(point) < 0 || Integer.parseInt(point) > 100) {
+	        		error = "0～100の範囲で入力してください";
+	    			req.setAttribute("error", error);
+	    			req.setAttribute("stuNo", stuNo);
+	    			req.getRequestDispatcher("TestRegist.action?f1="+stuDao.get(stuNo).getEntYear()+"&f2="+stuDao.get(stuNo).getClassNum().trim()+"&f3="+subCd+"&f4="+no).forward(req, res);
+	    			return;
+	        	}
+	        	
 	        	Test test = new Test();
 	        	
 	        	test.setStudent(stuDao.get(stuNo));
-	        	test.setClassNum(stuDao.get(stuNo).getClassNum());
+	        	test.setClassNum(stuDao.get(stuNo).getClassNum().trim());
 				test.setSubject(subDao.get(subCd, school));
 				test.setSchool(school);
 				test.setNo(no);
@@ -71,7 +80,7 @@ public class TestRegistExecuteAction extends Action {
 		} else {
 			error = "変更に失敗しました";
 			req.setAttribute("error", error);
-			req.getRequestDispatcher("subjectUpdate.action").forward(req, res);
+			req.getRequestDispatcher("TestRegist.action").forward(req, res);
 		}
 	}
 }
